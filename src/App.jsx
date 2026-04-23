@@ -23,6 +23,46 @@ const CSS = `
     --amber-pale: #F5EDD8;
     --purple:     #3C3489;
     --purple-pale:#EEEDFE;
+    --sidebar-bg: #3A2A1E;
+    --sidebar-accent: #B8943F;
+  }
+
+  /* ── Themes ── */
+  [data-theme="midnight"] {
+    --espresso: #1C1A16; --sidebar-bg: #1C1A16;
+    --cream: #F5F0E8; --parchment: #EDE5D4; --warm-white: #FAF7F2;
+  }
+  [data-theme="blush"] {
+    --espresso: #4A2830; --sidebar-bg: #3D2028;
+    --cream: #FDF0F2; --parchment: #F5E0E4; --warm-white: #FFF6F8;
+    --border: #E8C8CE; --gold: #8B3A4A; --gold-light: #C4556A;
+    --moss: #8B3A4A; --moss-light: #C4556A; --moss-pale: #FAE8EC;
+    --amber-pale: #FAE8EC; --sidebar-accent: #E8A0B0;
+  }
+  [data-theme="forest"] {
+    --espresso: #1E2E1E; --sidebar-bg: #1A2A1A;
+    --cream: #F0F5F0; --parchment: #E0EDE0; --warm-white: #F5FAF5;
+    --border: #C0D4C0; --gold: #3A6B2A; --gold-light: #5A9A3A;
+    --moss: #2C4A2E; --moss-light: #3D5A3E; --moss-pale: #DCF0DC;
+    --sidebar-accent: #7ABF5A;
+  }
+  [data-theme="parchment"] {
+    --espresso: #5C4A2A; --sidebar-bg: #4A3820;
+    --cream: #FAF5E8; --parchment: #F0E8D0; --warm-white: #FDFAF0;
+    --border: #D8C89A; --gold: #7A5910; --gold-light: #B8943F;
+    --sidebar-accent: #D4A843;
+  }
+  [data-theme="dusk"] {
+    --espresso: #1E1E30; --sidebar-bg: #18182A;
+    --cream: #F0F0F8; --parchment: #E4E4F4; --warm-white: #F6F6FC;
+    --border: #C8C8E0; --gold: #5050A0; --gold-light: #7070C0;
+    --moss: #5050A0; --moss-light: #7070C0; --moss-pale: #E0E0F8;
+    --amber-pale: #E8E8FC; --sidebar-accent: #A0A0E0;
+  }
+  [data-theme="espresso"] {
+    --espresso: #3A2A1E; --sidebar-bg: #3A2A1E;
+    --cream: #F5F0E8; --parchment: #EDE5D4; --warm-white: #FAF7F2;
+    --sidebar-accent: #B8943F;
   }
 
   body {
@@ -38,7 +78,7 @@ const CSS = `
   .sidebar {
     width: 228px;
     min-height: 100vh;
-    background: var(--espresso);
+    background: var(--sidebar-bg);
     display: flex;
     flex-direction: column;
     padding: 32px 0;
@@ -631,6 +671,181 @@ const CSS = `
   }
 
   .save-toast.show { opacity: 1; transform: translateY(0); }
+
+  /* ── Theme switcher ── */
+  .theme-switcher {
+    padding: 16px 24px;
+    border-top: 1px solid rgba(255,255,255,0.07);
+    margin-top: 8px;
+  }
+
+  .theme-label {
+    font-size: 9px; font-weight: 500;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: rgba(255,255,255,0.25);
+    margin-bottom: 10px;
+  }
+
+  .theme-dots {
+    display: flex; gap: 8px; flex-wrap: wrap;
+  }
+
+  .theme-dot {
+    width: 20px; height: 20px; border-radius: 50%;
+    cursor: pointer; border: 2px solid transparent;
+    transition: all 0.15s; flex-shrink: 0;
+  }
+
+  .theme-dot.active {
+    border-color: rgba(255,255,255,0.7);
+    transform: scale(1.15);
+  }
+
+  .theme-dot:hover { transform: scale(1.1); }
+
+  /* ── Mobile theme row ── */
+  .mobile-theme-row {
+    display: none;
+    gap: 8px; align-items: center;
+    padding: 0 20px 10px;
+    background: var(--sidebar-bg);
+  }
+
+  .mobile-theme-label {
+    font-size: 9px; font-weight: 500;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+  }
+
+  /* ── Release row — strikethrough when released ── */
+  .control-input.released {
+    text-decoration: line-through;
+    opacity: 0.45;
+  }
+
+  .release-check {
+    width: 14px; height: 14px;
+    border: 1.5px solid #C8A060;
+    border-radius: 3px;
+    flex-shrink: 0; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s; background: #fff;
+  }
+
+  .release-check.released {
+    background: #C8604040;
+    border-color: #C8604080;
+  }
+
+  .release-check.released::after {
+    content: '❌';
+    font-size: 8px;
+    line-height: 1;
+  }
+
+  /* ── Mobile bottom nav ── */
+  .bottom-nav {
+    display: none;
+    position: fixed; bottom: 0; left: 0; right: 0;
+    height: 60px;
+    background: var(--sidebar-bg);
+    border-top: 1px solid rgba(255,255,255,0.08);
+    z-index: 20;
+  }
+
+  .bottom-nav-inner { display: flex; height: 100%; }
+
+  .bottom-nav-btn {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 3px;
+    border: none; background: transparent;
+    color: rgba(255,255,255,0.45);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 10px; font-weight: 400;
+    cursor: pointer; transition: color 0.15s;
+    letter-spacing: 0.04em;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .bottom-nav-btn.active { color: #fff; }
+  .bottom-nav-btn .bnav-icon { font-size: 18px; line-height: 1; }
+  .bottom-nav-btn .bnav-label { font-size: 10px; }
+
+  /* ── Mobile header ── */
+  .mobile-header {
+    display: none;
+    background: var(--sidebar-bg);
+    padding: 16px 20px 14px;
+    position: sticky; top: 0; z-index: 15;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+
+  .mobile-header-brand {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px; font-weight: 300;
+    color: var(--cream); letter-spacing: 0.04em;
+  }
+
+  .mobile-header-brand em { font-style: italic; opacity: 0.6; }
+
+  .mobile-header-date {
+    font-size: 10px; color: rgba(255,255,255,0.3);
+    letter-spacing: 0.1em; text-transform: uppercase; margin-top: 2px;
+  }
+
+  /* ── Tablet (≤768px) ── */
+  @media (max-width: 768px) {
+    .sidebar       { display: none; }
+    .bottom-nav    { display: block; }
+    .mobile-header { display: block; }
+
+    .app { flex-direction: column; }
+
+    .main {
+      margin-left: 0;
+      max-width: 100%;
+      padding: 24px 20px 80px;
+    }
+
+    .page-header  { margin-bottom: 24px; }
+    .page-title   { font-size: 28px; }
+
+    .grid-2        { grid-template-columns: 1fr; }
+    .control-cols  { grid-template-columns: 1fr; }
+    .virtue-grid   { grid-template-columns: 1fr; }
+
+    .card { padding: 20px 18px; }
+
+    .habit-day-labels  { margin-left: 120px; }
+    .habit-name-input  { width: 110px; }
+
+    .save-toast { bottom: 72px; right: 20px; }
+  }
+
+  /* ── Small mobile (≤480px) ── */
+  @media (max-width: 480px) {
+    .main  { padding: 16px 14px 80px; }
+
+    .page-title { font-size: 24px; }
+
+    .card { padding: 16px 14px; border-radius: 12px; }
+
+    .tab-btn { padding: 8px 10px; font-size: 12px; }
+
+    .time-label  { width: 42px; font-size: 10px; }
+
+    .energy-btn  { width: 32px; height: 32px; font-size: 12px; }
+
+    .mood-btn    { padding: 6px 10px; font-size: 11px; }
+
+    .habit-day-labels  { margin-left: 96px; }
+    .habit-name-input  { width: 86px; }
+    .habit-dot         { width: 20px; height: 20px; }
+
+    .task-block-label  { font-size: 10px; }
+    .numbered-item     { padding: 10px 12px; }
+    .week-day-card     { padding: 12px; }
+  }
 `;
 
 // ─── Storage helpers (localStorage) ──────────────────────────────────────────
@@ -714,7 +929,7 @@ function DailyPage({ state, setState }) {
   const total    = allTasks.length;
 
   const controlFocus   = state.focus   || ["","","",""];
-  const controlRelease = state.release || ["","",""];
+  const controlRelease = state.release || [{text:"",done:false},{text:"",done:false},{text:"",done:false}];
 
   return (
     <>
@@ -769,20 +984,32 @@ function DailyPage({ state, setState }) {
               </div>
               <div className="control-col release">
                 <div className="control-col-head">I will let go of</div>
-                {controlRelease.map((val, i) => (
-                  <div className="control-row" key={i}>
-                    <input
-                      className="control-input"
-                      placeholder={`Let go of…`}
-                      value={val}
-                      onChange={e => {
-                        const arr = [...controlRelease];
-                        arr[i] = e.target.value;
-                        setField("release", arr);
-                      }}
-                    />
-                  </div>
-                ))}
+                {controlRelease.map((item, i) => {
+                  const val      = typeof item === "object" ? item.text  : item;
+                  const released = typeof item === "object" ? item.done  : false;
+                  return (
+                    <div className="control-row" key={i}>
+                      <div
+                        className={`release-check ${released ? "released" : ""}`}
+                        onClick={() => {
+                          const arr = [...controlRelease];
+                          arr[i] = { text: val, done: !released };
+                          setField("release", arr);
+                        }}
+                      />
+                      <input
+                        className={`control-input ${released ? "released" : ""}`}
+                        placeholder="Let go of…"
+                        value={val}
+                        onChange={e => {
+                          const arr = [...controlRelease];
+                          arr[i] = { text: e.target.value, done: released };
+                          setField("release", arr);
+                        }}
+                      />
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -999,7 +1226,7 @@ function GoalsPage({ state, setState }) {
   return (
     <>
       <div className="card">
-        <div className="card-title"><div className="rule"/> This season, I want to grow in</div>
+        <div className="card-title"><div className="rule"/> This quarter, I want to grow in</div>
         <p style={{fontFamily:"'Cormorant Garamond',serif",fontSize:14,fontStyle:"italic",color:"var(--muted)",marginBottom:18,lineHeight:1.5}}>
           "What stands in the way becomes the way." — Marcus Aurelius
         </p>
@@ -1028,7 +1255,7 @@ function GoalsPage({ state, setState }) {
 
       <div className="grid-2">
         <div className="card">
-          <div className="card-title"><div className="rule"/> My goals for this season</div>
+          <div className="card-title"><div className="rule"/> My goals this quarter</div>
           {LIFE_AREAS.map(area => (
             <div className="life-area" key={area}>
               <div className="life-area-title">{area}</div>
@@ -1074,6 +1301,21 @@ export default function App() {
   const [goals,  setGoals]  = useState({});
   const [loaded, setLoaded] = useState(false);
   const [toast,  setToast]  = useState(false);
+  const [theme,  setTheme]  = useState(() => localStorage.getItem("mv-theme") || "espresso");
+
+  const THEMES = [
+    { id:"espresso",  label:"Espresso",  dot:"#3A2A1E" },
+    { id:"midnight",  label:"Midnight",  dot:"#1C1A16" },
+    { id:"blush",     label:"Blush",     dot:"#C4556A" },
+    { id:"forest",    label:"Forest",    dot:"#2C3E2D" },
+    { id:"parchment", label:"Parchment", dot:"#C9A84C" },
+    { id:"dusk",      label:"Dusk",      dot:"#7070C0" },
+  ];
+
+  const applyTheme = (id) => {
+    setTheme(id);
+    localStorage.setItem("mv-theme", id);
+  };
 
   useEffect(() => {
     (async () => {
@@ -1100,8 +1342,8 @@ export default function App() {
   const monthName = today.toLocaleDateString("en-GB", { month: "long", year: "numeric" });
 
   const navItems = [
-    { id:"daily",  icon:"◈", label:"Today"     },
-    { id:"weekly", icon:"◻", label:"This Week"  },
+    { id:"daily",  icon:"📋", label:"Today"     },
+    { id:"weekly", icon:"📅", label:"This Week"  },
     { id:"goals",  icon:"◇", label:"Goals"      },
   ];
 
@@ -1114,7 +1356,9 @@ export default function App() {
   return (
     <>
       <style>{CSS}</style>
-      <div className="app">
+      <div className="app" data-theme={theme}>
+
+        {/* Desktop sidebar */}
         <aside className="sidebar">
           <div className="sidebar-brand">
             <div className="brand-mv">Memento<br/><em>Vivere</em></div>
@@ -1132,6 +1376,19 @@ export default function App() {
               ))}
             </div>
           </nav>
+          <div className="theme-switcher">
+            <div className="theme-label">Theme</div>
+            <div className="theme-dots">
+              {THEMES.map(t => (
+                <div key={t.id}
+                  className={`theme-dot ${theme===t.id?"active":""}`}
+                  style={{background: t.dot}}
+                  title={t.label}
+                  onClick={() => applyTheme(t.id)}
+                />
+              ))}
+            </div>
+          </div>
           <div className="sidebar-date">
             <div className="sidebar-day">{today.getDate()}</div>
             <div className="sidebar-month">
@@ -1139,6 +1396,27 @@ export default function App() {
             </div>
           </div>
         </aside>
+
+        {/* Mobile top header */}
+        <header className="mobile-header">
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
+            <div>
+              <div className="mobile-header-brand">Memento <em>Vivere</em></div>
+              <div className="mobile-header-date">
+                {today.toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"})}
+              </div>
+            </div>
+            <div style={{display:"flex",gap:6,alignItems:"center",paddingTop:2}}>
+              {THEMES.map(t => (
+                <div key={t.id}
+                  className={`theme-dot ${theme===t.id?"active":""}`}
+                  style={{background:t.dot,width:16,height:16}}
+                  onClick={() => applyTheme(t.id)}
+                />
+              ))}
+            </div>
+          </div>
+        </header>
 
         <main className="main">
           <div className="page-header">
@@ -1150,6 +1428,20 @@ export default function App() {
           {page==="goals"  && <GoalsPage  state={goals}  setState={setGoals}  />}
         </main>
       </div>
+
+      {/* Mobile bottom nav */}
+      <nav className="bottom-nav">
+        <div className="bottom-nav-inner">
+          {navItems.map(n => (
+            <button key={n.id}
+              className={`bottom-nav-btn ${page===n.id?"active":""}`}
+              onClick={() => setPage(n.id)}>
+              <span className="bnav-icon">{n.icon}</span>
+              <span className="bnav-label">{n.label}</span>
+            </button>
+          ))}
+        </div>
+      </nav>
 
       <div className={`save-toast ${toast?"show":""}`}>✓ Saved</div>
     </>
