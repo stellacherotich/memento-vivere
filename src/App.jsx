@@ -651,6 +651,127 @@ const CSS = `
   .goal-input:focus { border-color: var(--moss-light); }
   .goal-input::placeholder { color: #C4BAA8; }
 
+  /* ── Energy sliders ── */
+  .energy-split {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 14px; margin-bottom: 20px;
+  }
+
+  .energy-track {
+    background: var(--parchment);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+  }
+
+  .energy-track-label {
+    font-size: 9px; font-weight: 500;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 6px;
+  }
+
+  .energy-track-value {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15px; font-weight: 400;
+    color: var(--ink); margin-bottom: 8px;
+    min-height: 22px;
+  }
+
+  .energy-slider {
+    width: 100%; height: 4px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: var(--border);
+    border-radius: 2px; outline: none; cursor: pointer;
+  }
+
+  .energy-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--moss-light);
+    cursor: pointer; border: none;
+  }
+
+  .energy-slider::-moz-range-thumb {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--moss-light);
+    cursor: pointer; border: none;
+  }
+
+  /* ── Suggestion panel ── */
+  .suggestion-panel {
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    margin-top: 16px;
+  }
+
+  .suggestion-header {
+    display: flex; align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    cursor: pointer;
+    background: var(--parchment);
+    transition: background 0.15s;
+  }
+
+  .suggestion-header:hover { background: var(--border); }
+
+  .suggestion-header-text {
+    font-size: 12px; font-weight: 500;
+    color: var(--ink);
+  }
+
+  .suggestion-header-icon {
+    font-size: 12px; color: var(--muted);
+    transition: transform 0.2s;
+  }
+
+  .suggestion-header-icon.open { transform: rotate(180deg); }
+
+  .suggestion-body {
+    padding: 16px;
+    background: var(--warm-white);
+    border-top: 1px solid var(--border);
+  }
+
+  .suggestion-note {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 14px; font-style: italic;
+    color: var(--muted); margin-bottom: 14px;
+    line-height: 1.5;
+  }
+
+  .suggestion-actions {
+    display: flex; flex-direction: column; gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .suggestion-action {
+    padding: 12px 14px;
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+
+  .suggestion-action-label {
+    font-size: 13px; font-weight: 500;
+    color: var(--ink); margin-bottom: 4px;
+  }
+
+  .suggestion-action-detail {
+    font-size: 12px; color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .suggestion-notes-label {
+    font-size: 9px; font-weight: 500;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 8px;
+  }
+
   .life-area { margin-bottom: 18px; }
 
   .life-area-title {
@@ -813,6 +934,7 @@ const CSS = `
     .grid-2        { grid-template-columns: 1fr; }
     .control-cols  { grid-template-columns: 1fr; }
     .virtue-grid   { grid-template-columns: 1fr; }
+    .energy-split  { grid-template-columns: 1fr; }
 
     .card { padding: 20px 18px; }
 
@@ -868,9 +990,157 @@ const DAYS     = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
 const HOURS = [];
 for (let h = 6; h <= 21; h++) HOURS.push(`${h < 10 ? "0"+h : h}:00`);
 
-const MOODS = ["Calm","Focused","Tired","Overwhelmed","Motivated","Anxious"];
+const MOODS = [
+  "Calm", "Focused", "Motivated", "Energised", "Hopeful",
+  "Tired", "Anxious", "Overwhelmed", "Frustrated", "Sad",
+  "Distracted", "Content", "Grateful", "Restless", "Numb",
+];
 
 const LIFE_AREAS = ["Work","Health","Relationships","Learning","Money","Rest"];
+
+const ENERGY_LABELS = {
+  physical: ["Exhausted", "Low", "Okay", "Good", "Strong"],
+  mental:   ["Foggy",     "Slow", "Okay", "Sharp", "Locked in"],
+  emotional:["Depleted",  "Flat", "Okay", "Stable", "Lifted"],
+};
+
+const MOOD_SUGGESTIONS = {
+  "Anxious": {
+    colour: "#7A2020",
+    note: "Anxiety often comes from trying to control what we can't. Here are a few things that help:",
+    actions: [
+      { label: "Box breathing", detail: "Breathe in 4 counts, hold 4, out 4, hold 4. Repeat 4 times." },
+      { label: "Write the one worry", detail: "Name the single thing causing the most anxiety right now. Write it down and ask: is this in my control?" },
+      { label: "Step outside", detail: "5 minutes of fresh air and movement. No phone." },
+    ]
+  },
+  "Overwhelmed": {
+    colour: "#5C3A08",
+    note: "When everything feels urgent, nothing gets done. Narrow your focus:",
+    actions: [
+      { label: "Three things only", detail: "Write the three most urgent tasks and close everything else." },
+      { label: "Close all tabs", detail: "Close your browser, email, and anything not directly needed. One screen." },
+      { label: "25-minute timer", detail: "Pick the smallest task on your list. Set 25 minutes. Start." },
+    ]
+  },
+  "Tired": {
+    colour: "#3C3489",
+    note: "Rest is productive. Your body is communicating something:",
+    actions: [
+      { label: "10-minute rest", detail: "Lie down with no screens. Eyes closed. Even if you don't sleep, your brain resets." },
+      { label: "Drink water", detail: "Dehydration is the most underrated cause of fatigue. Drink a full glass now." },
+      { label: "Step away from your desk", detail: "Move your body for 5 minutes — stretch, walk, anything." },
+    ]
+  },
+  "Frustrated": {
+    colour: "#8B3A0A",
+    note: "Frustration is energy looking for direction. Use it:",
+    actions: [
+      { label: "Move for 5 minutes", detail: "Physical movement shifts your state faster than anything else. Walk, jump, stretch." },
+      { label: "Write what you wish went differently", detail: "Don't suppress it — name it, then decide what (if anything) you can do about it." },
+      { label: "Call someone", detail: "A 5-minute conversation with someone you trust resets perspective." },
+    ]
+  },
+  "Sad": {
+    colour: "#2C4A2E",
+    note: "Sadness deserves space, not suppression. Be gentle with yourself today:",
+    actions: [
+      { label: "Don't force productivity", detail: "Do one small, kind thing for yourself instead. Eat something warm. Rest." },
+      { label: "Journal freely", detail: "No prompts. Just write what's there. You don't have to make sense of it." },
+      { label: "Reach out", detail: "Text or call one person — not to fix anything, just to connect." },
+    ]
+  },
+  "Distracted": {
+    colour: "#534AB7",
+    note: "Distraction is often avoidance in disguise. Name what you're avoiding:",
+    actions: [
+      { label: "Write what you're avoiding", detail: "Be honest. What's the task or thought you keep skipping over?" },
+      { label: "Phone in another room", detail: "Physical distance from your phone reduces urge to check by over 30%." },
+      { label: "Start with 10 minutes", detail: "Don't commit to finishing. Just start for 10 minutes. Momentum builds." },
+    ]
+  },
+  "Restless": {
+    colour: "#7A5910",
+    note: "Restlessness is often unused energy or unexpressed need. Channel it:",
+    actions: [
+      { label: "Move your body", detail: "Go for a walk, run, or do something physical. Restlessness needs an outlet." },
+      { label: "Write what you really want", detail: "Restlessness often signals that something is misaligned. What do you actually want right now?" },
+      { label: "Change your environment", detail: "Move to a different room, go outside, find a new space to work from." },
+    ]
+  },
+  "Numb": {
+    colour: "#5C5650",
+    note: "Numbness often follows sustained stress or overwhelm. You don't need to feel better immediately:",
+    actions: [
+      { label: "Do one very small thing", detail: "Make your bed, wash a cup, fold something. Tiny completion reactivates agency." },
+      { label: "Go outside", detail: "Natural light and air are the most accessible mood regulators available." },
+      { label: "Be patient", detail: "Numbness is often your nervous system recovering. Rest without guilt." },
+    ]
+  },
+  "Focused": {
+    colour: "#2C4A2E",
+    note: "You are in a good state. Protect it:",
+    actions: [
+      { label: "Block the next 90 minutes", detail: "Don't let meetings or notifications break this window. Guard it." },
+      { label: "Turn off notifications", detail: "All of them. Even the ones you think are fine." },
+      { label: "Note what got you here", detail: "Write down what you did today that contributed to this state — sleep, food, routine — so you can recreate it." },
+    ]
+  },
+  "Motivated": {
+    colour: "#2C4A2E",
+    note: "Motivation is rare — make the most of it:",
+    actions: [
+      { label: "Start the hardest thing first", detail: "Use this energy on the task you've been avoiding most." },
+      { label: "Set a clear end point", detail: "Define what 'done' looks like today so you finish strong rather than fade." },
+      { label: "Note what fuelled this", detail: "What happened today — or last night — that contributed to feeling this way?" },
+    ]
+  },
+  "Energised": {
+    colour: "#3D5A3E",
+    note: "High energy is a resource. Use it intentionally:",
+    actions: [
+      { label: "Tackle the biggest goal", detail: "Don't waste high energy on small tasks. Go straight to your most important work." },
+      { label: "Share the energy", detail: "Reach out to someone you've been meaning to connect with." },
+      { label: "Note what created this state", detail: "Sleep, food, exercise, mindset — what contributed? Build that pattern." },
+    ]
+  },
+  "Calm": {
+    colour: "#3C3489",
+    note: "Calm is an underrated superpower. Use it for deep work:",
+    actions: [
+      { label: "Write or think deeply", detail: "Calm is the ideal state for reflection, planning, or creative work." },
+      { label: "Have a difficult conversation", detail: "Now is a good time for anything that requires steadiness." },
+      { label: "Enjoy it", detail: "Not every moment needs to be productive. Presence is enough." },
+    ]
+  },
+  "Grateful": {
+    colour: "#7A5910",
+    note: "Gratitude compounds when you get specific:",
+    actions: [
+      { label: "Write three specifics", detail: "Not 'health and family' — what specific moment, person, or thing today are you grateful for?" },
+      { label: "Tell someone", detail: "Express gratitude directly to one person today. A message, a call, anything." },
+      { label: "Savour it", detail: "Sit with the feeling for 60 seconds without moving on. Let it land." },
+    ]
+  },
+  "Content": {
+    colour: "#2C4A2E",
+    note: "Contentment is the Stoic ideal — not excitement, just enough. Honour it:",
+    actions: [
+      { label: "Don't chase more", detail: "Notice the urge to want something different. Sit with what is." },
+      { label: "Write what is working", detail: "Content days reveal what your life looks like when it is aligned." },
+      { label: "Rest without guilt", detail: "You don't need to earn rest. This is it." },
+    ]
+  },
+  "Hopeful": {
+    colour: "#3D5A3E",
+    note: "Hope is most useful when it is attached to action:",
+    actions: [
+      { label: "Write what you are hoping for", detail: "Make it specific. Vague hope drifts. Named hope becomes intention." },
+      { label: "Take one step toward it today", detail: "Even a tiny one. Hope moves when you move." },
+      { label: "Share it", detail: "Tell one person what you are looking forward to." },
+    ]
+  },
+};
 
 const QUOTES = [
   { text: "Confine yourself to the present.", attr: "Marcus Aurelius" },
@@ -908,6 +1178,82 @@ function TaskBlock({ barClass, labelClass, label, desc, tasks, onAdd, onToggle, 
         ))}
         <button className="add-btn" onClick={onAdd}>+ Add</button>
       </div>
+    </div>
+  );
+}
+
+// ─── EveningWellbeing ────────────────────────────────────────────────────────
+function EveningWellbeing({ state, setField }) {
+  const [showSuggestion, setShowSuggestion] = useState(false);
+
+  const energy = state.energySplit || { physical: 3, mental: 3, emotional: 3 };
+  const setEnergy = (key, val) => setField("energySplit", {...energy, [key]: val});
+
+  const mood        = state.mood || null;
+  const suggestion  = mood ? MOOD_SUGGESTIONS[mood] : null;
+
+  return (
+    <div className="card">
+      <div className="card-title"><div className="rule"/> How I felt today</div>
+
+      <div className="section-label" style={{marginBottom:12}}>Energy levels</div>
+      <div className="energy-split">
+        {["physical","mental","emotional"].map(key => (
+          <div className="energy-track" key={key}>
+            <div className="energy-track-label">{key}</div>
+            <div className="energy-track-value">
+              {ENERGY_LABELS[key][(energy[key]||3) - 1]}
+            </div>
+            <input type="range" min={1} max={5} step={1}
+              className="energy-slider"
+              value={energy[key]||3}
+              onChange={e => setEnergy(key, Number(e.target.value))}
+            />
+          </div>
+        ))}
+      </div>
+
+      <div className="section-label" style={{marginBottom:10}}>State of mind</div>
+      <div className="mood-row" style={{marginBottom:4}}>
+        {MOODS.map(m => (
+          <button key={m}
+            className={`mood-btn ${state.mood===m?"selected":""}`}
+            onClick={() => {
+              setField("mood", state.mood===m ? null : m);
+              setShowSuggestion(false);
+            }}>{m}</button>
+        ))}
+      </div>
+
+      {mood && suggestion && (
+        <div className="suggestion-panel">
+          <div className="suggestion-header" onClick={() => setShowSuggestion(s => !s)}>
+            <span className="suggestion-header-text">
+              What can I do about feeling {mood.toLowerCase()}?
+            </span>
+            <span className={`suggestion-header-icon ${showSuggestion?"open":""}`}>▼</span>
+          </div>
+          {showSuggestion && (
+            <div className="suggestion-body">
+              <p className="suggestion-note">{suggestion.note}</p>
+              <div className="suggestion-actions">
+                {suggestion.actions.map((a, i) => (
+                  <div className="suggestion-action" key={i}>
+                    <div className="suggestion-action-label">{a.label}</div>
+                    <div className="suggestion-action-detail">{a.detail}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="suggestion-notes-label">What actually helped?</div>
+              <textarea className="styled-textarea" rows={2}
+                placeholder="Note what worked for you so you can come back to it…"
+                value={(state.moodNotes||{})[mood]||""}
+                onChange={e => setField("moodNotes", {...(state.moodNotes||{}), [mood]: e.target.value})}
+              />
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -1079,25 +1425,7 @@ function DailyPage({ state, setState }) {
             </div>
           </div>
 
-          <div className="card">
-            <div className="card-title"><div className="rule"/> How I felt today</div>
-            <div className="section-label" style={{marginBottom:10}}>Energy level</div>
-            <div className="energy-row" style={{marginBottom:20}}>
-              {[1,2,3,4,5].map(n => (
-                <button key={n}
-                  className={`energy-btn ${state.energy===n?"selected":""}`}
-                  onClick={() => setField("energy", n)}>{n}</button>
-              ))}
-            </div>
-            <div className="section-label" style={{marginBottom:10}}>State of mind</div>
-            <div className="mood-row">
-              {MOODS.map(m => (
-                <button key={m}
-                  className={`mood-btn ${state.mood===m?"selected":""}`}
-                  onClick={() => setField("mood", m)}>{m}</button>
-              ))}
-            </div>
-          </div>
+          <EveningWellbeing state={state} setField={setField} />
 
           <div className="card">
             <div className="stoic-quote">
@@ -1223,6 +1551,24 @@ function GoalsPage({ state, setState }) {
     { key: "temperance", barClass: "temperance", label: "Knowing when to stop", prompt: "What habits do I need to pull back on?" },
   ];
 
+  const getAreaGoals = (area) => (state.seasonal||{})[area] || [""];
+
+  const setAreaGoal = (area, idx, val) => {
+    const arr = [...getAreaGoals(area)];
+    arr[idx] = val;
+    setField("seasonal", {...(state.seasonal||{}), [area]: arr});
+  };
+
+  const addAreaGoal = (area) => {
+    const arr = [...getAreaGoals(area), ""];
+    setField("seasonal", {...(state.seasonal||{}), [area]: arr});
+  };
+
+  const removeAreaGoal = (area, idx) => {
+    const arr = getAreaGoals(area).filter((_, i) => i !== idx);
+    setField("seasonal", {...(state.seasonal||{}), [area]: arr.length ? arr : [""]});
+  };
+
   return (
     <>
       <div className="card">
@@ -1236,17 +1582,30 @@ function GoalsPage({ state, setState }) {
               <div className={`virtue-card-bar ${v.barClass}`}>{v.label}</div>
               <div className="virtue-card-body">
                 <p className="virtue-prompt">{v.prompt}</p>
-                {[0,1].map(i => (
-                  <input key={i} className="goal-input"
-                    placeholder="Write here…"
-                    value={((state.virtues||{})[v.key]||["",""])[i]}
-                    onChange={e => {
-                      const arr = [...(((state.virtues||{})[v.key])||["",""])];
-                      arr[i] = e.target.value;
-                      setField("virtues",{...(state.virtues||{}),[v.key]:arr});
-                    }}
-                  />
+                {((state.virtues||{})[v.key]||[""]).map((val, i) => (
+                  <div key={i} style={{display:"flex",alignItems:"center",gap:6}}>
+                    <input className="goal-input" style={{flex:1}}
+                      placeholder="Write here…"
+                      value={val}
+                      onChange={e => {
+                        const arr = [...(((state.virtues||{})[v.key])||[""])];
+                        arr[i] = e.target.value;
+                        setField("virtues",{...(state.virtues||{}),[v.key]:arr});
+                      }}
+                    />
+                    {i > 0 && (
+                      <button onClick={() => {
+                        const arr = ((state.virtues||{})[v.key]||[""]).filter((_,j)=>j!==i);
+                        setField("virtues",{...(state.virtues||{}),[v.key]:arr.length?arr:[""]});
+                      }} style={{border:"none",background:"transparent",color:"var(--muted)",cursor:"pointer",fontSize:14,padding:"0 2px",flexShrink:0}}>×</button>
+                    )}
+                  </div>
                 ))}
+                <button className="add-btn" style={{marginTop:6,fontSize:11,padding:"5px 10px"}}
+                  onClick={() => {
+                    const arr = [...((state.virtues||{})[v.key]||[""]), ""];
+                    setField("virtues",{...(state.virtues||{}),[v.key]:arr});
+                  }}>+ Add</button>
               </div>
             </div>
           ))}
@@ -1259,11 +1618,21 @@ function GoalsPage({ state, setState }) {
           {LIFE_AREAS.map(area => (
             <div className="life-area" key={area}>
               <div className="life-area-title">{area}</div>
-              <input className="goal-input"
-                placeholder="Set a goal…"
-                value={(state.seasonal||{})[area]||""}
-                onChange={e => setField("seasonal",{...(state.seasonal||{}),[area]:e.target.value})}
-              />
+              {getAreaGoals(area).map((val, i) => (
+                <div key={i} style={{display:"flex",alignItems:"center",gap:6}}>
+                  <input className="goal-input" style={{flex:1}}
+                    placeholder="Set a goal…"
+                    value={val}
+                    onChange={e => setAreaGoal(area, i, e.target.value)}
+                  />
+                  {i > 0 && (
+                    <button onClick={() => removeAreaGoal(area, i)}
+                      style={{border:"none",background:"transparent",color:"var(--muted)",cursor:"pointer",fontSize:14,padding:"0 2px",flexShrink:0}}>×</button>
+                  )}
+                </div>
+              ))}
+              <button className="add-btn" style={{marginTop:4,fontSize:11,padding:"5px 10px"}}
+                onClick={() => addAreaGoal(area)}>+ Add goal</button>
             </div>
           ))}
         </div>
@@ -1293,14 +1662,232 @@ function GoalsPage({ state, setState }) {
   );
 }
 
+
+// ─── MonthlyPage ──────────────────────────────────────────────────────────────
+function MonthlyPage({ state, setState }) {
+  const setField = (k, v) => setState(s => ({ ...s, [k]: v }));
+  const monthName = today.toLocaleDateString("en-GB", { month: "long", year: "numeric" });
+
+  return (
+    <>
+      <div className="card">
+        <div className="card-title"><div className="rule"/> Word of the quarter</div>
+        <div className="intention-box">
+          <div className="intention-prompt">Choose one word that defines this quarter for you.</div>
+          <input
+            style={{width:"100%",border:"none",background:"transparent",fontFamily:"'Cormorant Garamond',serif",fontSize:28,fontWeight:300,color:"var(--ink)",outline:"none",letterSpacing:"0.02em"}}
+            placeholder="Clarity, Growth, Rest…"
+            value={state.wordOfQuarter||""}
+            onChange={e => setField("wordOfQuarter", e.target.value)}
+          />
+        </div>
+        <div className="section-label" style={{marginTop:4}}>Why this word?</div>
+        <textarea className="styled-textarea"
+          placeholder="What does it mean to you this quarter…"
+          value={state.wordWhy||""}
+          onChange={e => setField("wordWhy", e.target.value)}
+        />
+      </div>
+
+      <div className="grid-2">
+        <div className="card">
+          <div className="card-title"><div className="rule"/> {monthName} in review</div>
+          {[
+            ["What went well this month?",        "wentWell"],
+            ["What was harder than expected?",    "harder"],
+            ["What did I learn about myself?",    "learned"],
+            ["What am I most proud of?",          "proud"],
+          ].map(([prompt, key]) => (
+            <div key={key} style={{marginBottom:16}}>
+              <p className="reflect-prompt">{prompt}</p>
+              <textarea className="styled-textarea" rows={2}
+                placeholder="Write here…"
+                value={state[key]||""}
+                onChange={e => setField(key, e.target.value)}
+              />
+            </div>
+          ))}
+        </div>
+
+        <div className="card">
+          <div className="card-title"><div className="rule"/> Looking ahead</div>
+          {[
+            ["What do I want more of next month?",  "moreof"],
+            ["What do I want less of?",             "lessof"],
+            ["One habit I am committing to:",       "habitcommit"],
+            ["One thing I will stop doing:",        "stopDoing"],
+          ].map(([prompt, key]) => (
+            <div key={key} style={{marginBottom:16}}>
+              <p className="reflect-prompt">{prompt}</p>
+              <textarea className="styled-textarea" rows={2}
+                placeholder="Write here…"
+                value={state[key]||""}
+                onChange={e => setField(key, e.target.value)}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="card">
+        <div className="card-title"><div className="rule"/> Monthly goals</div>
+        {LIFE_AREAS.map(area => {
+          const goals = (state.monthGoals||{})[area] || [""];
+          return (
+            <div className="life-area" key={area}>
+              <div className="life-area-title">{area}</div>
+              {goals.map((val, i) => (
+                <div key={i} style={{display:"flex",alignItems:"center",gap:6}}>
+                  <input className="goal-input" style={{flex:1}}
+                    placeholder="Set a goal…"
+                    value={val}
+                    onChange={e => {
+                      const arr = [...goals]; arr[i] = e.target.value;
+                      setField("monthGoals", {...(state.monthGoals||{}), [area]: arr});
+                    }}
+                  />
+                  {i > 0 && (
+                    <button onClick={() => {
+                      const arr = goals.filter((_,j)=>j!==i);
+                      setField("monthGoals", {...(state.monthGoals||{}), [area]: arr.length?arr:[""]});
+                    }} style={{border:"none",background:"transparent",color:"var(--muted)",cursor:"pointer",fontSize:14,padding:"0 2px"}}>×</button>
+                  )}
+                </div>
+              ))}
+              <button className="add-btn" style={{marginTop:4,fontSize:11,padding:"5px 10px"}}
+                onClick={() => {
+                  setField("monthGoals", {...(state.monthGoals||{}), [area]: [...goals, ""]});
+                }}>+ Add goal</button>
+            </div>
+          );
+        })}
+      </div>
+    </>
+  );
+}
+
+// ─── YearlyPage ───────────────────────────────────────────────────────────────
+function YearlyPage({ state, setState }) {
+  const setField = (k, v) => setState(s => ({ ...s, [k]: v }));
+  const year = today.getFullYear();
+
+  const QUARTERS = ["Q1 — Jan to Mar", "Q2 — Apr to Jun", "Q3 — Jul to Sep", "Q4 — Oct to Dec"];
+
+  return (
+    <>
+      <div className="card">
+        <div className="card-title"><div className="rule"/> {year} — My year</div>
+        <div className="intention-box">
+          <div className="intention-prompt">What does {year} mean to you? Write your vision in a few sentences.</div>
+          <textarea
+            className="intention-input"
+            rows={3}
+            placeholder="This year I intend to…"
+            value={state.yearVision||""}
+            onChange={e => setField("yearVision", e.target.value)}
+          />
+        </div>
+      </div>
+
+      <div className="grid-2">
+        <div className="card">
+          <div className="card-title"><div className="rule"/> Yearly goals</div>
+          {LIFE_AREAS.map(area => {
+            const goals = (state.yearGoals||{})[area] || [""];
+            return (
+              <div className="life-area" key={area}>
+                <div className="life-area-title">{area}</div>
+                {goals.map((val, i) => (
+                  <div key={i} style={{display:"flex",alignItems:"center",gap:6}}>
+                    <input className="goal-input" style={{flex:1}}
+                      placeholder="Set a goal…"
+                      value={val}
+                      onChange={e => {
+                        const arr = [...goals]; arr[i] = e.target.value;
+                        setField("yearGoals", {...(state.yearGoals||{}), [area]: arr});
+                      }}
+                    />
+                    {i > 0 && (
+                      <button onClick={() => {
+                        const arr = goals.filter((_,j)=>j!==i);
+                        setField("yearGoals", {...(state.yearGoals||{}), [area]: arr.length?arr:[""]});
+                      }} style={{border:"none",background:"transparent",color:"var(--muted)",cursor:"pointer",fontSize:14,padding:"0 2px"}}>×</button>
+                    )}
+                  </div>
+                ))}
+                <button className="add-btn" style={{marginTop:4,fontSize:11,padding:"5px 10px"}}
+                  onClick={() => {
+                    setField("yearGoals", {...(state.yearGoals||{}), [area]: [...goals, ""]});
+                  }}>+ Add goal</button>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="card">
+          <div className="card-title"><div className="rule"/> Quarterly focus</div>
+          <p style={{fontFamily:"'Cormorant Garamond',serif",fontSize:13,fontStyle:"italic",color:"var(--muted)",marginBottom:16,lineHeight:1.5}}>
+            One word or theme per quarter.
+          </p>
+          {QUARTERS.map((q, i) => (
+            <div key={i} style={{marginBottom:16}}>
+              <div className="life-area-title">{q}</div>
+              <input className="goal-input"
+                placeholder="Word or theme…"
+                value={((state.quarterFocus)||[])[i]||""}
+                onChange={e => {
+                  const arr = [...((state.quarterFocus)||["","","",""])];
+                  arr[i] = e.target.value;
+                  setField("quarterFocus", arr);
+                }}
+              />
+              <textarea className="styled-textarea" rows={2} style={{marginTop:6}}
+                placeholder="What does this quarter need from you…"
+                value={((state.quarterNotes)||[])[i]||""}
+                onChange={e => {
+                  const arr = [...((state.quarterNotes)||["","","",""])];
+                  arr[i] = e.target.value;
+                  setField("quarterNotes", arr);
+                }}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="card">
+        <div className="card-title"><div className="rule"/> Big questions for {year}</div>
+        {[
+          ["What would make this year feel meaningful?",   "meaningful"],
+          ["What fear do I want to face this year?",       "fear"],
+          ["What relationship do I want to invest in?",   "relationship"],
+          ["What do I want to stop carrying into {year}?","letgo"],
+          ["What does the best version of me look like?", "bestself"],
+        ].map(([prompt, key]) => (
+          <div key={key} style={{marginBottom:16}}>
+            <p className="reflect-prompt">{prompt.replace("{year}", year)}</p>
+            <textarea className="styled-textarea" rows={2}
+              placeholder="Write here…"
+              value={state[key]||""}
+              onChange={e => setField(key, e.target.value)}
+            />
+          </div>
+        ))}
+      </div>
+    </>
+  );
+}
+
 // ─── App ──────────────────────────────────────────────────────────────────────
 export default function App() {
-  const [page,   setPage]   = useState("daily");
-  const [daily,  setDaily]  = useState({});
-  const [weekly, setWeekly] = useState({});
-  const [goals,  setGoals]  = useState({});
-  const [loaded, setLoaded] = useState(false);
-  const [toast,  setToast]  = useState(false);
+  const [page,    setPage]    = useState("daily");
+  const [daily,   setDaily]   = useState({});
+  const [weekly,  setWeekly]  = useState({});
+  const [monthly, setMonthly] = useState({});
+  const [yearly,  setYearly]  = useState({});
+  const [goals,   setGoals]   = useState({});
+  const [loaded,  setLoaded]  = useState(false);
+  const [toast,   setToast]   = useState(false);
   const [theme,  setTheme]  = useState(() => localStorage.getItem("mv-theme") || "espresso");
 
   const THEMES = [
@@ -1319,9 +1906,11 @@ export default function App() {
 
   useEffect(() => {
     (async () => {
-      setDaily( (await load(`mv-daily-${todayKey}`)) || {});
-      setWeekly((await load("mv-weekly"))            || {});
-      setGoals( (await load("mv-goals"))             || {});
+      setDaily(  (await load(`mv-daily-${todayKey}`)) || {});
+      setWeekly( (await load("mv-weekly"))             || {});
+      setMonthly((await load("mv-monthly"))            || {});
+      setYearly( (await load("mv-yearly"))             || {});
+      setGoals(  (await load("mv-goals"))              || {});
       setLoaded(true);
     })();
   }, []);
@@ -1331,26 +1920,32 @@ export default function App() {
     const t = setTimeout(async () => {
       await save(`mv-daily-${todayKey}`, daily);
       await save("mv-weekly",            weekly);
+      await save("mv-monthly",           monthly);
+      await save("mv-yearly",            yearly);
       await save("mv-goals",             goals);
       setToast(true);
       setTimeout(() => setToast(false), 1800);
     }, 800);
     return () => clearTimeout(t);
-  }, [daily, weekly, goals, loaded]);
+  }, [daily, weekly, monthly, yearly, goals, loaded]);
 
   const dayName   = today.toLocaleDateString("en-GB", { weekday: "long" });
   const monthName = today.toLocaleDateString("en-GB", { month: "long", year: "numeric" });
 
   const navItems = [
-    { id:"daily",  icon:"📋", label:"Today"     },
-    { id:"weekly", icon:"📅", label:"This Week"  },
-    { id:"goals",  icon:"◇", label:"Goals"      },
+    { id:"daily",   icon:"📋", label:"Today"      },
+    { id:"weekly",  icon:"📅", label:"This Week"   },
+    { id:"monthly", icon:"🗓", label:"This Month"  },
+    { id:"yearly",  icon:"✦",  label:"This Year"   },
+    { id:"goals",   icon:"◇",  label:"Goals"       },
   ];
 
   const titles = {
-    daily:  { title: dayName,        sub: monthName },
-    weekly: { title: "This week",    sub: "Intention, goals & habits" },
-    goals:  { title: "Goals & growth", sub: "Who I am becoming" },
+    daily:   { title: dayName,   sub: monthName },
+    weekly:  { title: "This week",     sub: "Intention, goals & habits" },
+    monthly: { title: "This month",    sub: "Review, reflect, plan ahead" },
+    yearly:  { title: String(today.getFullYear()), sub: "Your year — vision, goals & big questions" },
+    goals:   { title: "Goals & growth", sub: "Who I am becoming" },
   };
 
   return (
@@ -1423,9 +2018,11 @@ export default function App() {
             <h1 className="page-title">{titles[page].title}</h1>
             <p className="page-subtitle">{titles[page].sub}</p>
           </div>
-          {page==="daily"  && <DailyPage  state={daily}  setState={setDaily}  />}
-          {page==="weekly" && <WeeklyPage state={weekly} setState={setWeekly} />}
-          {page==="goals"  && <GoalsPage  state={goals}  setState={setGoals}  />}
+          {page==="daily"   && <DailyPage   state={daily}   setState={setDaily}   />}
+          {page==="weekly"  && <WeeklyPage  state={weekly}  setState={setWeekly}  />}
+          {page==="monthly" && <MonthlyPage state={monthly} setState={setMonthly} />}
+          {page==="yearly"  && <YearlyPage  state={yearly}  setState={setYearly}  />}
+          {page==="goals"   && <GoalsPage   state={goals}   setState={setGoals}   />}
         </main>
       </div>
 
