@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Analytics } from "@vercel/analytics/react";
 
 // ─── Palette & tokens ─────────────────────────────────────────────────────────
 const CSS = `
@@ -884,7 +885,7 @@ const QUOTES = [
 
 const dailyQuote = QUOTES[today.getDate() % QUOTES.length];
 
-// ─── TaskBlock sub-component ──────────────────────────────────────────────────
+// ─── TaskBlock sub-component ──���───────────────────────────────────────────────
 function TaskBlock({ barClass, labelClass, label, desc, tasks, onAdd, onToggle, onDelete, onEdit, placeholder }) {
   return (
     <div className="task-block">
@@ -1444,6 +1445,7 @@ export default function App() {
       </nav>
 
       <div className={`save-toast ${toast?"show":""}`}>✓ Saved</div>
+      <Analytics />
     </>
   );
 }
