@@ -425,6 +425,59 @@ const CSS = `
   /* ── Schedule ── */
   .schedule { display: flex; flex-direction: column; }
 
+  .time-row-custom {
+    display: flex; align-items: stretch;
+    min-height: 40px;
+    border-bottom: 1px solid var(--parchment);
+    transition: background 0.1s;
+    gap: 0;
+  }
+
+  .time-row-custom:hover { background: var(--parchment); }
+
+  .time-label-input {
+    width: 52px; flex-shrink: 0;
+    border: none; background: transparent;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px; color: var(--gold);
+    font-weight: 500; padding: 10px 4px 10px 0;
+    letter-spacing: 0.04em; outline: none;
+    text-align: left;
+  }
+
+  .time-label-input::placeholder { color: var(--border); }
+
+  .time-del {
+    width: 24px; flex-shrink: 0;
+    border: none; background: transparent;
+    color: var(--border); font-size: 16px;
+    cursor: pointer; display: flex;
+    align-items: center; justify-content: center;
+    opacity: 0; transition: opacity 0.15s;
+    padding: 0;
+  }
+
+  .time-row-custom:hover .time-del { opacity: 1; }
+  .time-del:hover { color: #C0392B; }
+
+  .schedule-actions {
+    display: flex; gap: 8px;
+    margin-top: 10px; flex-wrap: wrap;
+  }
+
+  .add-slot-btn {
+    display: flex; align-items: center; gap: 6px;
+    padding: 7px 12px;
+    border: 1px dashed var(--border);
+    border-radius: 8px; background: transparent;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px; cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .add-slot-btn:hover { border-color: var(--moss-pale); color: var(--moss); }
+
   .time-row {
     display: flex; align-items: stretch;
     min-height: 40px;
@@ -1258,6 +1311,87 @@ function EveningWellbeing({ state, setField }) {
   );
 }
 
+// ─── ScheduleTab ─────────────────────────────────────────────────────────────
+function ScheduleTab({ state, setField }) {
+  // Fixed slots from HOURS constant
+  // Custom slots stored as array: [{id, time, text}]
+  const customSlots = state.customSlots || [];
+
+  const addSlot = (prefillTime = "") => {
+    const id = Date.now();
+    setField("customSlots", [...customSlots, { id, time: prefillTime, text: "" }]);
+  };
+
+  const removeSlot = (id) => {
+    setField("customSlots", customSlots.filter(s => s.id !== id));
+  };
+
+  const updateSlot = (id, key, val) => {
+    setField("customSlots", customSlots.map(s => s.id === id ? {...s, [key]: val} : s));
+  };
+
+  // Merge fixed + custom, sorted by time string
+  const fixedRows  = HOURS.map(h => ({ type: "fixed",  time: h }));
+  const customRows = customSlots.map(s => ({ type: "custom", ...s }));
+  const allRows    = [...fixedRows, ...customRows].sort((a, b) => {
+    const ta = a.time || "99:99";
+    const tb = b.time || "99:99";
+    return ta.localeCompare(tb);
+  });
+
+  // Quick-add presets for common extra times
+  const PRESETS = ["05:00","05:30","22:00","22:30","23:00","00:00"];
+
+  return (
+    <div className="card">
+      <div className="card-title"><div className="rule"/> Schedule</div>
+      <div className="schedule">
+        {allRows.map(row => row.type === "fixed" ? (
+          <div className="time-row" key={row.time}>
+            <span className="time-label">{row.time}</span>
+            <textarea
+              className="time-input"
+              rows={1}
+              placeholder="—"
+              value={(state.schedule||{})[row.time]||""}
+              onChange={e => setField("schedule", {...(state.schedule||{}), [row.time]: e.target.value})}
+            />
+          </div>
+        ) : (
+          <div className="time-row-custom" key={row.id}>
+            <input
+              className="time-label-input"
+              placeholder="00:00"
+              value={row.time}
+              maxLength={5}
+              onChange={e => updateSlot(row.id, "time", e.target.value)}
+            />
+            <textarea
+              className="time-input"
+              rows={1}
+              placeholder="—"
+              value={row.text}
+              onChange={e => updateSlot(row.id, "text", e.target.value)}
+            />
+            <button className="time-del" onClick={() => removeSlot(row.id)}>×</button>
+          </div>
+        ))}
+      </div>
+
+      <div className="schedule-actions">
+        <button className="add-slot-btn" onClick={() => addSlot("")}>
+          + Custom time slot
+        </button>
+        {PRESETS.map(p => (
+          <button key={p} className="add-slot-btn" onClick={() => addSlot(p)}>
+            + {p}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ─── DailyPage ────────────────────────────────────────────────────────────────
 function DailyPage({ state, setState }) {
   const [tab, setTab] = useState("morning");
@@ -1383,23 +1517,7 @@ function DailyPage({ state, setState }) {
       )}
 
       {tab === "schedule" && (
-        <div className="card">
-          <div className="card-title"><div className="rule"/> Schedule</div>
-          <div className="schedule">
-            {HOURS.map(h => (
-              <div className="time-row" key={h}>
-                <span className="time-label">{h}</span>
-                <textarea
-                  className="time-input"
-                  rows={1}
-                  placeholder="—"
-                  value={(state.schedule||{})[h]||""}
-                  onChange={e => setField("schedule", {...(state.schedule||{}), [h]: e.target.value})}
-                />
-              </div>
-            ))}
-          </div>
-        </div>
+        <ScheduleTab state={state} setField={setField} />
       )}
 
       {tab === "evening" && (
