@@ -391,6 +391,58 @@ const CSS = `
   .task-item:hover .task-del { opacity: 1; }
   .task-del:hover { color: #C0392B; }
 
+  /* ── Priority tags ── */
+  .priority-tag {
+    flex-shrink: 0;
+    font-size: 10px; font-weight: 600;
+    padding: 2px 7px; border-radius: 10px;
+    cursor: pointer; border: 1.5px solid var(--border);
+    transition: all 0.15s; letter-spacing: 0.04em;
+    background: transparent; color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+  }
+  .priority-tag:hover { border-color: var(--muted); }
+  .priority-tag.p1 { background: #FDECEA; color: #C0392B; border-color: #F5C6C2; }
+  .priority-tag.p2 { background: #EAF4EA; color: #2C7A2C; border-color: #C2DEC2; }
+  .priority-tag.p3 { background: #FEF6E4; color: #8B6914; border-color: #F5DFA0; }
+  .priority-tag.p4 { background: #F0F0F8; color: #534AB7; border-color: #D0D0E8; }
+
+  /* ── Matrix ── */
+  .matrix { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 8px; }
+  .matrix-quadrant { border-radius: 12px; border: 1px solid var(--border); overflow: hidden; min-height: 180px; display: flex; flex-direction: column; }
+  .matrix-header { padding: 10px 14px; display: flex; flex-direction: column; gap: 2px; }
+  .matrix-q1 .matrix-header { background: #FDECEA; border-bottom: 1px solid #F5C6C2; }
+  .matrix-q2 .matrix-header { background: #EAF4EA; border-bottom: 1px solid #C2DEC2; }
+  .matrix-q3 .matrix-header { background: #FEF6E4; border-bottom: 1px solid #F5DFA0; }
+  .matrix-q4 .matrix-header { background: #F0F0F8; border-bottom: 1px solid #D0D0E8; }
+  .matrix-q-label { font-size: 8px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; }
+  .matrix-q1 .matrix-q-label { color: #C0392B; }
+  .matrix-q2 .matrix-q-label { color: #2C7A2C; }
+  .matrix-q3 .matrix-q-label { color: #8B6914; }
+  .matrix-q4 .matrix-q-label { color: #534AB7; }
+  .matrix-q-title { font-family: 'Cormorant Garamond', serif; font-size: 15px; font-weight: 500; color: var(--ink); }
+  .matrix-q-desc { font-size: 10px; color: var(--muted); font-style: italic; margin-top: 1px; }
+  .matrix-body { padding: 10px 12px; background: var(--warm-white); flex: 1; display: flex; flex-direction: column; gap: 6px; }
+  .matrix-task { display: flex; align-items: flex-start; gap: 8px; padding: 6px 8px; background: #fff; border: 1px solid var(--border); border-radius: 7px; transition: border-color 0.15s; }
+  .matrix-task:hover { border-color: var(--moss-pale); }
+  .matrix-task-check { width: 14px; height: 14px; border: 1.5px solid var(--border); border-radius: 3px; flex-shrink: 0; cursor: pointer; margin-top: 1px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; background: #fff; }
+  .matrix-task-check.checked { background: var(--moss-light); border-color: var(--moss-light); }
+  .matrix-task-check.checked::after { content: '✓'; color: #fff; font-size: 9px; font-weight: 700; }
+  .matrix-task-text { flex: 1; border: none; background: transparent; font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--ink); outline: none; resize: none; line-height: 1.4; padding: 0; }
+  .matrix-task-text.done { text-decoration: line-through; color: var(--muted); }
+  .matrix-task-text::placeholder { color: #C4BAA8; }
+  .matrix-task-del { border: none; background: transparent; color: var(--border); font-size: 14px; cursor: pointer; padding: 0 2px; opacity: 0; transition: opacity 0.15s; flex-shrink: 0; line-height: 1; }
+  .matrix-task:hover .matrix-task-del { opacity: 1; }
+  .matrix-task-del:hover { color: #C0392B; }
+  .matrix-move { font-size: 10px; color: var(--muted); border: none; background: transparent; cursor: pointer; padding: 2px 4px; border-radius: 4px; white-space: nowrap; transition: all 0.15s; flex-shrink: 0; margin-top: 1px; }
+  .matrix-move:hover { background: var(--parchment); color: var(--ink); }
+  .matrix-add-btn { display: flex; align-items: center; gap: 5px; padding: 6px 8px; border: 1px dashed var(--border); border-radius: 7px; background: transparent; color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 11px; cursor: pointer; transition: all 0.15s; width: 100%; text-align: left; }
+  .matrix-add-btn:hover { border-color: var(--moss-pale); color: var(--moss); }
+  .matrix-legend { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 24px; padding: 10px 14px; background: var(--parchment); border-radius: 10px; margin-top: 4px; }
+  .matrix-legend-item { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--muted); }
+  .matrix-legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  @media (max-width: 600px) { .matrix { grid-template-columns: 1fr; } }
+
   .add-btn {
     display: flex; align-items: center; gap: 6px;
     padding: 7px 12px;
@@ -1208,7 +1260,17 @@ const QUOTES = [
 const dailyQuote = QUOTES[today.getDate() % QUOTES.length];
 
 // ─── TaskBlock sub-component ──────────────────────────────────────────────────
-function TaskBlock({ barClass, labelClass, label, desc, tasks, onAdd, onToggle, onDelete, onEdit, placeholder }) {
+const PRIORITY_CYCLE  = [null,"p1","p2","p3","p4"];
+const PRIORITY_LABELS = { p1:"P1", p2:"P2", p3:"P3", p4:"P4" };
+const PRIORITY_TITLES = {
+  p1: "P1 — Do first (urgent & important)",
+  p2: "P2 — Schedule (important, not urgent)",
+  p3: "P3 — Delegate (urgent, not important)",
+  p4: "P4 — Eliminate (neither)",
+};
+const PRIORITY_TO_Q = { p1:"q1", p2:"q2", p3:"q3", p4:"q4" };
+
+function TaskBlock({ barClass, labelClass, label, desc, tasks, onAdd, onToggle, onDelete, onEdit, onPriority, placeholder }) {
   return (
     <div className="task-block">
       <div className="task-block-header">
@@ -1217,18 +1279,29 @@ function TaskBlock({ barClass, labelClass, label, desc, tasks, onAdd, onToggle, 
         <span className="task-block-desc">{desc}</span>
       </div>
       <div className="task-list">
-        {tasks.map(t => (
-          <div className="task-item" key={t.id}>
-            <div className={`task-check ${t.done ? "checked" : ""}`} onClick={() => onToggle(t.id)} />
-            <input
-              className={`task-text ${t.done ? "done" : ""}`}
-              value={t.text}
-              placeholder={placeholder}
-              onChange={e => onEdit(t.id, e.target.value)}
-            />
-            <button className="task-del" onClick={() => onDelete(t.id)}>×</button>
-          </div>
-        ))}
+        {tasks.map(t => {
+          const pIdx = PRIORITY_CYCLE.indexOf(t.priority || null);
+          const nextP = PRIORITY_CYCLE[(pIdx + 1) % PRIORITY_CYCLE.length];
+          return (
+            <div className="task-item" key={t.id}>
+              <div className={`task-check ${t.done ? "checked" : ""}`} onClick={() => onToggle(t.id)} />
+              <input
+                className={`task-text ${t.done ? "done" : ""}`}
+                value={t.text}
+                placeholder={placeholder}
+                onChange={e => onEdit(t.id, e.target.value)}
+              />
+              <button
+                className={`priority-tag ${t.priority || ""}`}
+                title={t.priority ? PRIORITY_TITLES[t.priority] : "Click to set priority — P1 urgent & important, P2 important, P3 urgent, P4 neither"}
+                onClick={() => onPriority(t.id, nextP)}
+              >
+                {t.priority ? PRIORITY_LABELS[t.priority] : "—"}
+              </button>
+              <button className="task-del" onClick={() => onDelete(t.id)}>×</button>
+            </div>
+          );
+        })}
         <button className="add-btn" onClick={onAdd}>+ Add</button>
       </div>
     </div>
@@ -1308,6 +1381,130 @@ function EveningWellbeing({ state, setField }) {
         </div>
       )}
     </div>
+  );
+}
+
+// ─── MatrixTab ───────────────────────────────────────────────────────────────
+const QUADRANTS = [
+  { id:"q1", cls:"matrix-q1", label:"Do first",   title:"Urgent & Important",     desc:"Crises, deadlines, things only you can do" },
+  { id:"q2", cls:"matrix-q2", label:"Schedule",   title:"Important, not urgent",  desc:"Planning, growth, relationships, deep work" },
+  { id:"q3", cls:"matrix-q3", label:"Delegate",   title:"Urgent, not important",  desc:"Interruptions, most meetings, others' priorities" },
+  { id:"q4", cls:"matrix-q4", label:"Eliminate",  title:"Neither urgent nor important", desc:"Busywork, distractions, time fillers" },
+];
+
+function MatrixTab({ state, setField }) {
+  const matrix  = state.matrix || {};
+  const allCats = ["quick","tasks","deep"];
+
+  // Tagged tasks auto-populate from priority labels
+  const tagged = allCats.flatMap(cat =>
+    (state[cat]||[]).filter(t => t.priority).map(t => ({...t, _cat:cat}))
+  );
+
+  const getManual  = (qid) => matrix[qid] || [];
+  const getAll     = (qid) => [
+    ...tagged.filter(t => PRIORITY_TO_Q[t.priority] === qid),
+    ...getManual(qid),
+  ];
+
+  const toggleTagged = (cat, id) =>
+    setField(cat, (state[cat]||[]).map(t => t.id===id ? {...t,done:!t.done} : t));
+
+  const addManual    = (qid) =>
+    setField("matrix", {...matrix, [qid]: [...getManual(qid), {id:Date.now(),text:"",done:false}]});
+
+  const toggleManual = (qid, id) =>
+    setField("matrix", {...matrix, [qid]: getManual(qid).map(t => t.id===id?{...t,done:!t.done}:t)});
+
+  const deleteManual = (qid, id) =>
+    setField("matrix", {...matrix, [qid]: getManual(qid).filter(t => t.id!==id)});
+
+  const editManual   = (qid, id, text) =>
+    setField("matrix", {...matrix, [qid]: getManual(qid).map(t => t.id===id?{...t,text}:t)});
+
+  const moveManual   = (fromQid, id, toQid) => {
+    const task = getManual(fromQid).find(t => t.id===id);
+    if (!task) return;
+    setField("matrix", {
+      ...matrix,
+      [fromQid]: getManual(fromQid).filter(t => t.id!==id),
+      [toQid]:   [...getManual(toQid), {...task, done:false}],
+    });
+  };
+
+  return (
+    <>
+      <div className="card">
+        <div className="card-title"><div className="rule"/> Eisenhower matrix</div>
+        <p style={{fontFamily:"'Cormorant Garamond',serif",fontSize:13,fontStyle:"italic",color:"var(--muted)",marginBottom:6,lineHeight:1.5}}>
+          "What is important is seldom urgent, and what is urgent is seldom important."
+        </p>
+        <p style={{fontSize:11,color:"var(--muted)",marginBottom:18}}>
+          Tag tasks P1–P4 in the Morning tab and they appear here automatically. You can also add tasks directly to any quadrant.
+        </p>
+        <div className="matrix">
+          {QUADRANTS.map(q => (
+            <div className={`matrix-quadrant ${q.cls}`} key={q.id}>
+              <div className="matrix-header">
+                <span className="matrix-q-label">{q.label}</span>
+                <span className="matrix-q-title">{q.title}</span>
+                <span className="matrix-q-desc">{q.desc}</span>
+              </div>
+              <div className="matrix-body">
+                {getAll(q.id).map(task => {
+                  const isTagged = !!task._cat;
+                  return (
+                    <div className="matrix-task" key={`${task._cat||"m"}-${task.id}`}
+                      style={isTagged ? {borderLeft:"3px solid var(--border)"} : {}}>
+                      <div
+                        className={`matrix-task-check ${task.done?"checked":""}`}
+                        onClick={() => isTagged ? toggleTagged(task._cat,task.id) : toggleManual(q.id,task.id)}
+                      />
+                      <textarea
+                        className={`matrix-task-text ${task.done?"done":""}`}
+                        rows={1}
+                        placeholder="Add task…"
+                        value={task.text}
+                        readOnly={isTagged}
+                        style={isTagged?{cursor:"default"}:{}}
+                        onChange={e => !isTagged && editManual(q.id,task.id,e.target.value)}
+                      />
+                      {isTagged
+                        ? <span style={{fontSize:9,color:"var(--muted)",flexShrink:0,fontStyle:"italic",paddingTop:2}}>auto</span>
+                        : <>
+                            <select className="matrix-move" value=""
+                              onChange={e => { if(e.target.value) moveManual(q.id,task.id,e.target.value); }}>
+                              <option value="">Move…</option>
+                              {QUADRANTS.filter(oq=>oq.id!==q.id).map(oq=>(
+                                <option key={oq.id} value={oq.id}>{oq.label}</option>
+                              ))}
+                            </select>
+                            <button className="matrix-task-del" onClick={()=>deleteManual(q.id,task.id)}>×</button>
+                          </>
+                      }
+                    </div>
+                  );
+                })}
+                <button className="matrix-add-btn" onClick={()=>addManual(q.id)}>+ Add task</button>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="matrix-legend">
+          {[
+            {colour:"#C0392B",text:"P1 — Do first"},
+            {colour:"#2C7A2C",text:"P2 — Schedule"},
+            {colour:"#8B6914",text:"P3 — Delegate"},
+            {colour:"#534AB7",text:"P4 — Eliminate"},
+          ].map(l=>(
+            <div className="matrix-legend-item" key={l.text}>
+              <div className="matrix-legend-dot" style={{background:l.colour}}/>
+              {l.text}
+            </div>
+          ))}
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -1398,10 +1595,11 @@ function DailyPage({ state, setState }) {
   const setField = (k, v) => setState(s => ({ ...s, [k]: v }));
 
   const taskOps = (cat) => ({
-    onAdd:    () => setField(cat, [...(state[cat]||[]), { id: Date.now(), text: "", done: false }]),
-    onToggle: (id) => setField(cat, (state[cat]||[]).map(t => t.id===id ? {...t,done:!t.done} : t)),
-    onDelete: (id) => setField(cat, (state[cat]||[]).filter(t => t.id!==id)),
-    onEdit:   (id, v) => setField(cat, (state[cat]||[]).map(t => t.id===id ? {...t,text:v} : t)),
+    onAdd:     () => setField(cat, [...(state[cat]||[]), { id: Date.now(), text: "", done: false, priority: null }]),
+    onToggle:  (id) => setField(cat, (state[cat]||[]).map(t => t.id===id ? {...t,done:!t.done} : t)),
+    onDelete:  (id) => setField(cat, (state[cat]||[]).filter(t => t.id!==id)),
+    onEdit:    (id, v) => setField(cat, (state[cat]||[]).map(t => t.id===id ? {...t,text:v} : t)),
+    onPriority:(id, p) => setField(cat, (state[cat]||[]).map(t => t.id===id ? {...t,priority:p} : t)),
   });
 
   const allTasks = [...(state.quick||[]),...(state.tasks||[]),...(state.deep||[])];
@@ -1414,7 +1612,7 @@ function DailyPage({ state, setState }) {
   return (
     <>
       <div className="tab-nav">
-        {[["morning","Morning"],["schedule","Schedule"],["evening","Evening"]].map(([id, lbl]) => (
+        {[["morning","Morning"],["matrix","Matrix"],["schedule","Schedule"],["evening","Evening"]].map(([id, lbl]) => (
           <button key={id} className={`tab-btn ${tab===id?"active":""}`} onClick={() => setTab(id)}>
             {lbl}
           </button>
@@ -1514,6 +1712,10 @@ function DailyPage({ state, setState }) {
               tasks={state.deep||[]} placeholder="Deep work or project…" {...taskOps("deep")} />
           </div>
         </>
+      )}
+
+      {tab === "matrix" && (
+        <MatrixTab state={state} setField={setField} />
       )}
 
       {tab === "schedule" && (
